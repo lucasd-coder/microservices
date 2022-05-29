@@ -1,0 +1,6 @@
+extend type Query {
+   courses: [Course!]!
+   course(id: String!): Course!
+   enrollments: [Enrollment!]!
+   students: [User!]!
+}

@@ -1,0 +1,4 @@
+extend type User @key(fields: "authUserId") @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.User"){
+  authUserId: ID! @external
+  enrollments: [Enrollment!]!
+}

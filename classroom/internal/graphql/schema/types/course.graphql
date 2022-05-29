@@ -1,0 +1,10 @@
+extend type Course @key(fields: "id") @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.Course") {
+
+    id: String!
+    title: String!
+    slug: String!
+}
+
+input CreateCourseInput @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.CreateCourseInput") {
+  title: String!
+}

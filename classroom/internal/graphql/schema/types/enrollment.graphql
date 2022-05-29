@@ -1,0 +1,7 @@
+extend type Enrollment @key(fields: "id") @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.Enrollment") {
+  id: ID!
+  student: User!
+  course: Course!
+  canceleAt: Time
+  createdAt: Time!
+}
