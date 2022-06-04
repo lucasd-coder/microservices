@@ -13,5 +13,5 @@ func (r *queryResolver) Enrollments(ctx context.Context) ([]*model.Enrollment, e
 func (r *entityResolver) FindEnrollmentByID(ctx context.Context, id string) (*model.Enrollment, error) {
 	return &model.Enrollment{
 		ID: id,
-	}, nil	
+	}, nil
 }

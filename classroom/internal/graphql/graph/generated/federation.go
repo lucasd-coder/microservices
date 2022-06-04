@@ -88,7 +88,7 @@ func (ec *executionContext) __resolve_entities(ctx context.Context, representati
 			switch resolverName {
 
 			case "findCourseByID":
-				id0, err := ec.unmarshalNString2string(ctx, rep["id"])
+				id0, err := ec.unmarshalNID2string(ctx, rep["id"])
 				if err != nil {
 					return fmt.Errorf(`unmarshalling param 0 for findCourseByID(): %w`, err)
 				}

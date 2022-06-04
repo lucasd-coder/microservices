@@ -21,11 +21,11 @@ func main() {
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(
 		generated.Config{
-			Resolvers: &resolvers.Resolver{},
+			Resolvers:  &resolvers.Resolver{},
 			Directives: generated.DirectiveRoot{},
 			Complexity: generated.ComplexityRoot{},
 		},
-		))
+	))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

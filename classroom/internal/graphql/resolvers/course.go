@@ -24,7 +24,7 @@ func (r *entityResolver) FindCourseByID(ctx context.Context, id string) (*model.
 	}
 
 	return &model.Course{
-		ID:       id,
+		ID:    id,
 		Title: title,
 	}, nil
 }

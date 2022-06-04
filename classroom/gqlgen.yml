@@ -11,6 +11,7 @@ exec:
 federation:
   filename: internal/graphql/graph/generated/federation.go
   package: generated
+  version: 2
 
 # Where should the resolver implementations go?
 resolver:

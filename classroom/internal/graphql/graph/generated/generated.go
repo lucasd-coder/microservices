@@ -397,9 +397,9 @@ scalar Time
     query: Query
     mutation: Mutation
 }`, BuiltIn: false},
-	{Name: "../../schema/types/course.graphql", Input: `extend type Course @key(fields: "id") @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.Course") {
+	{Name: "../../schema/types/course.graphql", Input: `type Course @key(fields: "id") @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.Course") {
 
-    id: String!
+    id: ID!
     title: String!
     slug: String!
 }
@@ -407,7 +407,7 @@ scalar Time
 input CreateCourseInput @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.CreateCourseInput") {
   title: String!
 }`, BuiltIn: false},
-	{Name: "../../schema/types/enrollment.graphql", Input: `extend type Enrollment @key(fields: "id") @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.Enrollment") {
+	{Name: "../../schema/types/enrollment.graphql", Input: `type Enrollment @key(fields: "id") @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.Enrollment") {
   id: ID!
   student: User!
   course: Course!
@@ -427,7 +427,12 @@ input CreateCourseInput @goModel(model: "github.com/lucasd-coder/classroom/inter
 	directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
 	directive @extends on OBJECT | INTERFACE
 
-	directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
+	directive @key(fields: _FieldSet!, resolvable: Boolean) repeatable on OBJECT | INTERFACE
+	directive @link(import: [String!], url: String!) repeatable on SCHEMA
+	directive @shareable on OBJECT | FIELD_DEFINITION
+	directive @tag repeatable on OBJECT | FIELD_DEFINITION | INTERFACE | UNION
+	directive @override(from: String!) on FIELD_DEFINITION
+	directive @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 `, BuiltIn: true},
 	{Name: "../../../../federation/entity.graphql", Input: `
 # a union of all types that use the @key directive
@@ -435,7 +440,7 @@ union _Entity = Course | Enrollment | User
 
 # fake type to build resolver interfaces for users to implement
 type Entity {
-		findCourseByID(id: String!,): Course!
+		findCourseByID(id: ID!,): Course!
 	findEnrollmentByID(id: ID!,): Enrollment!
 	findUserByAuthUserID(authUserID: ID!,): User!
 
@@ -463,7 +468,7 @@ func (ec *executionContext) field_Entity_findCourseByID_args(ctx context.Context
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -628,7 +633,7 @@ func (ec *executionContext) _Course_id(ctx context.Context, field graphql.Collec
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Course_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -638,7 +643,7 @@ func (ec *executionContext) fieldContext_Course_id(ctx context.Context, field gr
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1740,9 +1745,9 @@ func (ec *executionContext) _User_enrollments(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]model.Enrollment)
+	res := resTmp.([]*model.Enrollment)
 	fc.Result = res
-	return ec.marshalNEnrollment2ᚕgithubᚗcomᚋlucasdᚑcoderᚋclassroomᚋinternalᚋgraphqlᚋmodelᚐEnrollmentᚄ(ctx, field.Selections, res)
+	return ec.marshalNEnrollment2ᚕᚖgithubᚗcomᚋlucasdᚑcoderᚋclassroomᚋinternalᚋgraphqlᚋmodelᚐEnrollmentᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_enrollments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4516,50 +4521,6 @@ func (ec *executionContext) unmarshalNCreateCourseInput2githubᚗcomᚋlucasdᚑ
 
 func (ec *executionContext) marshalNEnrollment2githubᚗcomᚋlucasdᚑcoderᚋclassroomᚋinternalᚋgraphqlᚋmodelᚐEnrollment(ctx context.Context, sel ast.SelectionSet, v model.Enrollment) graphql.Marshaler {
 	return ec._Enrollment(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNEnrollment2ᚕgithubᚗcomᚋlucasdᚑcoderᚋclassroomᚋinternalᚋgraphqlᚋmodelᚐEnrollmentᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Enrollment) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNEnrollment2githubᚗcomᚋlucasdᚑcoderᚋclassroomᚋinternalᚋgraphqlᚋmodelᚐEnrollment(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalNEnrollment2ᚕᚖgithubᚗcomᚋlucasdᚑcoderᚋclassroomᚋinternalᚋgraphqlᚋmodelᚐEnrollmentᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Enrollment) graphql.Marshaler {

@@ -1,6 +1,6 @@
-extend type Course @key(fields: "id") @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.Course") {
+type Course @key(fields: "id") @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.Course") {
 
-    id: String!
+    id: ID!
     title: String!
     slug: String!
 }
