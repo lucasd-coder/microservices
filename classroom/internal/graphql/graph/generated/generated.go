@@ -54,11 +54,11 @@ type ComplexityRoot struct {
 	}
 
 	Enrollment struct {
-		CanceleAt func(childComplexity int) int
-		Course    func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Student   func(childComplexity int) int
+		CanceledAt func(childComplexity int) int
+		Course     func(childComplexity int) int
+		CreatedAt  func(childComplexity int) int
+		ID         func(childComplexity int) int
+		Student    func(childComplexity int) int
 	}
 
 	Entity struct {
@@ -141,12 +141,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Course.Title(childComplexity), true
 
-	case "Enrollment.canceleAt":
-		if e.complexity.Enrollment.CanceleAt == nil {
+	case "Enrollment.canceledAt":
+		if e.complexity.Enrollment.CanceledAt == nil {
 			break
 		}
 
-		return e.complexity.Enrollment.CanceleAt(childComplexity), true
+		return e.complexity.Enrollment.CanceledAt(childComplexity), true
 
 	case "Enrollment.course":
 		if e.complexity.Enrollment.Course == nil {
@@ -411,7 +411,7 @@ input CreateCourseInput @goModel(model: "github.com/lucasd-coder/classroom/inter
   id: ID!
   student: User!
   course: Course!
-  canceleAt: Time
+  canceledAt: Time
   createdAt: Time!
 }`, BuiltIn: false},
 	{Name: "../../schema/types/user.graphql", Input: `extend type User @key(fields: "authUserId") @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.User"){
@@ -883,8 +883,8 @@ func (ec *executionContext) fieldContext_Enrollment_course(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Enrollment_canceleAt(ctx context.Context, field graphql.CollectedField, obj *model.Enrollment) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Enrollment_canceleAt(ctx, field)
+func (ec *executionContext) _Enrollment_canceledAt(ctx context.Context, field graphql.CollectedField, obj *model.Enrollment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Enrollment_canceledAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -897,7 +897,7 @@ func (ec *executionContext) _Enrollment_canceleAt(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CanceleAt, nil
+		return obj.CanceledAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -911,7 +911,7 @@ func (ec *executionContext) _Enrollment_canceleAt(ctx context.Context, field gra
 	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Enrollment_canceleAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Enrollment_canceledAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Enrollment",
 		Field:      field,
@@ -1076,8 +1076,8 @@ func (ec *executionContext) fieldContext_Entity_findEnrollmentByID(ctx context.C
 				return ec.fieldContext_Enrollment_student(ctx, field)
 			case "course":
 				return ec.fieldContext_Enrollment_course(ctx, field)
-			case "canceleAt":
-				return ec.fieldContext_Enrollment_canceleAt(ctx, field)
+			case "canceledAt":
+				return ec.fieldContext_Enrollment_canceledAt(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Enrollment_createdAt(ctx, field)
 			}
@@ -1382,8 +1382,8 @@ func (ec *executionContext) fieldContext_Query_enrollments(ctx context.Context, 
 				return ec.fieldContext_Enrollment_student(ctx, field)
 			case "course":
 				return ec.fieldContext_Enrollment_course(ctx, field)
-			case "canceleAt":
-				return ec.fieldContext_Enrollment_canceleAt(ctx, field)
+			case "canceledAt":
+				return ec.fieldContext_Enrollment_canceledAt(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Enrollment_createdAt(ctx, field)
 			}
@@ -1764,8 +1764,8 @@ func (ec *executionContext) fieldContext_User_enrollments(ctx context.Context, f
 				return ec.fieldContext_Enrollment_student(ctx, field)
 			case "course":
 				return ec.fieldContext_Enrollment_course(ctx, field)
-			case "canceleAt":
-				return ec.fieldContext_Enrollment_canceleAt(ctx, field)
+			case "canceledAt":
+				return ec.fieldContext_Enrollment_canceledAt(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Enrollment_createdAt(ctx, field)
 			}
@@ -3723,9 +3723,9 @@ func (ec *executionContext) _Enrollment(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "canceleAt":
+		case "canceledAt":
 
-			out.Values[i] = ec._Enrollment_canceleAt(ctx, field, obj)
+			out.Values[i] = ec._Enrollment_canceledAt(ctx, field, obj)
 
 		case "createdAt":
 

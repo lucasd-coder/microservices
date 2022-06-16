@@ -14,14 +14,16 @@ import (
 	"github.com/lucasd-coder/classroom/internal/graphql/graph/generated"
 	"github.com/lucasd-coder/classroom/internal/graphql/resolvers"
 	"github.com/lucasd-coder/classroom/internal/middlewares"
+	"github.com/lucasd-coder/classroom/internal/pkg/database"
 	"github.com/lucasd-coder/classroom/internal/pkg/logger"
 	"github.com/lucasd-coder/classroom/internal/tools"
 )
 
 func graphqlHandler() gin.HandlerFunc {
+	db := database.GetDatabase()
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(
 		generated.Config{
-			Resolvers:  &resolvers.Resolver{},
+			Resolvers:  &resolvers.Resolver{DB: db},
 			Directives: generated.DirectiveRoot{},
 			Complexity: generated.ComplexityRoot{},
 		},
@@ -68,6 +70,11 @@ func playgroundHandler() gin.HandlerFunc {
 
 func Run(port string) {
 	logger.SetUpLog()
+
+	database.StartDB()
+
+	defer database.CloseConn()
+
 	srv := gin.Default()
 	srv.Use(gin.Recovery())
 	srv.Use(middlewares.GinContextToContextMiddleware())

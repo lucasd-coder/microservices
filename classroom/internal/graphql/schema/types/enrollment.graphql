@@ -2,6 +2,6 @@ type Enrollment @key(fields: "id") @goModel(model: "github.com/lucasd-coder/clas
   id: ID!
   student: User!
   course: Course!
-  canceleAt: Time
+  canceledAt: Time
   createdAt: Time!
 }
