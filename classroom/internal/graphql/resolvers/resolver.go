@@ -7,14 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lucasd-coder/classroom/internal/graphql/graph/generated"
 	"github.com/lucasd-coder/classroom/internal/pkg/logger"
+	"github.com/lucasd-coder/classroom/internal/service"
 	"github.com/lucasd-coder/classroom/internal/tools"
-	"gorm.io/gorm"
 )
 
 //go:generate go run github.com/99designs/gqlgen
 
 type Resolver struct {
-	DB *gorm.DB
+	CousersService *service.CoursesService
 }
 
 // Mutation returns generated.MutationResolver implementation.

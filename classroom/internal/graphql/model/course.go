@@ -8,9 +8,9 @@ import (
 )
 
 type Course struct {
-	ID    string `json:"id" gorm:"primaryKey;type:uuid"`
-	Title string `json:"title"`
-	Slug  string `json:"slug"`
+	ID        string    `json:"id" gorm:"primaryKey;type:uuid"`
+	Title     string    `json:"title"`
+	Slug      string    `json:"slug"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
@@ -19,6 +19,13 @@ func (course *Course) BeforeCreate(tx *gorm.DB) error {
 	uuid := uuid.NewString()
 	tx.Statement.SetColumn("ID", uuid)
 	return nil
+}
+
+func NewCourse(title, slug string) *Course {
+	return &Course{
+		Title: title,
+		Slug:  slug,
+	}
 }
 
 func (Course) IsEntity() {}

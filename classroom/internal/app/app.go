@@ -20,10 +20,11 @@ import (
 )
 
 func graphqlHandler() gin.HandlerFunc {
-	db := database.GetDatabase()
+	courseService := InitializeCoursesService()
+
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(
 		generated.Config{
-			Resolvers:  &resolvers.Resolver{DB: db},
+			Resolvers:  &resolvers.Resolver{courseService},
 			Directives: generated.DirectiveRoot{},
 			Complexity: generated.ComplexityRoot{},
 		},
