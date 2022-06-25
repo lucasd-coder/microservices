@@ -15,7 +15,27 @@ func InitializeCoursesRepository() *repository.CoursesRepository {
 	return &repository.CoursesRepository{}
 }
 
+func InitializeEnrollemtsRepository() *repository.EnrollmentsRepository {
+	wire.Build(database.GetDatabase, repository.NewEnrollmentsRepository)
+	return &repository.EnrollmentsRepository{}
+}
+
+func InitializeStudentsRepository() *repository.StudentsRepository {
+	wire.Build(database.GetDatabase, repository.NewStudentsRepository)
+	return &repository.StudentsRepository{}
+}
+
 func InitializeCoursesService() *service.CoursesService {
-	wire.Build(InitializeCoursesRepository, service.NewCursesService)
+	wire.Build(InitializeCoursesRepository, service.NewCoursesService)
 	return &service.CoursesService{}
+}
+
+func InitializeEnrollemtsService() *service.EnrollmentsService {
+	wire.Build(InitializeEnrollemtsRepository, service.NewEnrollmentsService)
+	return &service.EnrollmentsService{}
+}
+
+func InitializeStudentsService() *service.StudentsService {
+	wire.Build(InitializeStudentsRepository, service.NewStudentsService)
+	return &service.StudentsService{}
 }

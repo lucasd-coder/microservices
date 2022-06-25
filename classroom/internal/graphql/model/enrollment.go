@@ -25,4 +25,11 @@ func (enrollment *Enrollment) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+func NewEnrollment(courseId, studentId string) *Enrollment {
+	return &Enrollment{
+		CourseID:  courseId,
+		StudentID: studentId,
+	}
+}
+
 func (Enrollment) IsEntity() {}

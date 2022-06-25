@@ -18,7 +18,7 @@ var (
 	ErrCourseAlreadyExist = fmt.Errorf("course already exists")
 )
 
-func NewCursesService(coursesRepository *repository.CoursesRepository) *CoursesService {
+func NewCoursesService(coursesRepository *repository.CoursesRepository) *CoursesService {
 	return &CoursesService{
 		CoursesRepository: coursesRepository,
 	}
@@ -49,7 +49,6 @@ func (service *CoursesService) GetCourseBySlug(slug string) (*model.Course, erro
 }
 
 func (service *CoursesService) CreateCourse(data *model.CreateCourseInput) (*model.Course, error) {
-	slug.Lowercase = false
 	slug := slug.Make(data.Title)
 
 	aux := service.CoursesRepository.GetCourseBySlug(slug)

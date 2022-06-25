@@ -6,6 +6,7 @@ import (
 
 	"github.com/lucasd-coder/classroom/internal/graphql/model"
 	"github.com/lucasd-coder/classroom/internal/pkg/logger"
+	"github.com/lucasd-coder/classroom/internal/tools"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
@@ -54,11 +55,23 @@ func (r *entityResolver) FindCourseByID(ctx context.Context, id string) (*model.
 }
 
 func (r *queryResolver) Course(ctx context.Context, id string) (*model.Course, error) {
-	gc, _, err := CheckContext(ctx)
+	gc, claims, err := CheckContext(ctx)
 	if err != nil {
 		logger.Log.Error(err)
 		gc.AbortWithStatus(http.StatusUnauthorized)
 		return &model.Course{}, gqlerror.Errorf(err.Error())
+	}
+
+	student, err := r.StudentService.GetStudentByAuthUserId(claims.RegisteredClaims.Subject)
+	if err != nil {
+		logger.Log.Error(err)
+		return &model.Course{}, gqlerror.Errorf(err.Error())
+	}
+
+	_, err = r.EnrollmentsService.GetByCourseAndStudentId(id, student.ID)
+	if err != nil {
+		logger.Log.Error(err)
+		return &model.Course{}, gqlerror.Errorf(tools.ErrUnAuthorized.Error())
 	}
 
 	course, err := r.CousersService.GetCourseById(id)

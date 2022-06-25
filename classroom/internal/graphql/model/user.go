@@ -24,4 +24,10 @@ func (user *User) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+func NewUser(authUserId string) *User {
+	return &User{
+		AuthUserId: authUserId,
+	}
+}
+
 func (User) IsEntity() {}

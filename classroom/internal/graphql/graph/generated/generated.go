@@ -38,9 +38,11 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Enrollment() EnrollmentResolver
 	Entity() EntityResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
+	User() UserResolver
 }
 
 type DirectiveRoot struct {
@@ -90,6 +92,10 @@ type ComplexityRoot struct {
 	}
 }
 
+type EnrollmentResolver interface {
+	Student(ctx context.Context, obj *model.Enrollment) (*model.User, error)
+	Course(ctx context.Context, obj *model.Enrollment) (*model.Course, error)
+}
 type EntityResolver interface {
 	FindCourseByID(ctx context.Context, id string) (*model.Course, error)
 	FindEnrollmentByID(ctx context.Context, id string) (*model.Enrollment, error)
@@ -103,6 +109,9 @@ type QueryResolver interface {
 	Course(ctx context.Context, id string) (*model.Course, error)
 	Enrollments(ctx context.Context) ([]*model.Enrollment, error)
 	Students(ctx context.Context) ([]*model.User, error)
+}
+type UserResolver interface {
+	Enrollments(ctx context.Context, obj *model.User) ([]*model.Enrollment, error)
 }
 
 type executableSchema struct {
@@ -377,7 +386,13 @@ directive @goModel(model: String, models: [String!]) on OBJECT
     | UNION
 
 directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
-    | FIELD_DEFINITION`, BuiltIn: false},
+    | FIELD_DEFINITION
+
+directive @goTag(
+	key: String!
+	value: String
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+`, BuiltIn: false},
 	{Name: "../../schema/mutation.graphql", Input: `extend type Mutation {
     createCourse(data: CreateCourseInput!): Course!
 }`, BuiltIn: false},
@@ -409,14 +424,14 @@ input CreateCourseInput @goModel(model: "github.com/lucasd-coder/classroom/inter
 }`, BuiltIn: false},
 	{Name: "../../schema/types/enrollment.graphql", Input: `type Enrollment @key(fields: "id") @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.Enrollment") {
   id: ID!
-  student: User!
-  course: Course!
+  student: User!  @goField(forceResolver: true)
+  course: Course!  @goField(forceResolver: true)
   canceledAt: Time
   createdAt: Time!
 }`, BuiltIn: false},
 	{Name: "../../schema/types/user.graphql", Input: `extend type User @key(fields: "authUserId") @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.User"){
   authUserId: ID! @external
-  enrollments: [Enrollment!]!
+  enrollments: [Enrollment!]!  @goField(forceResolver: true)
 }`, BuiltIn: false},
 	{Name: "../../../../federation/directives.graphql", Input: `
 	scalar _Any
@@ -795,7 +810,7 @@ func (ec *executionContext) _Enrollment_student(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Student, nil
+		return ec.resolvers.Enrollment().Student(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -807,17 +822,17 @@ func (ec *executionContext) _Enrollment_student(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.User)
+	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2githubᚗcomᚋlucasdᚑcoderᚋclassroomᚋinternalᚋgraphqlᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋlucasdᚑcoderᚋclassroomᚋinternalᚋgraphqlᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Enrollment_student(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Enrollment",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "authUserId":
@@ -845,7 +860,7 @@ func (ec *executionContext) _Enrollment_course(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Course, nil
+		return ec.resolvers.Enrollment().Course(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -857,17 +872,17 @@ func (ec *executionContext) _Enrollment_course(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.Course)
+	res := resTmp.(*model.Course)
 	fc.Result = res
-	return ec.marshalNCourse2githubᚗcomᚋlucasdᚑcoderᚋclassroomᚋinternalᚋgraphqlᚋmodelᚐCourse(ctx, field.Selections, res)
+	return ec.marshalNCourse2ᚖgithubᚗcomᚋlucasdᚑcoderᚋclassroomᚋinternalᚋgraphqlᚋmodelᚐCourse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Enrollment_course(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Enrollment",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -1733,7 +1748,7 @@ func (ec *executionContext) _User_enrollments(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Enrollments, nil
+		return ec.resolvers.User().Enrollments(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1754,8 +1769,8 @@ func (ec *executionContext) fieldContext_User_enrollments(ctx context.Context, f
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -3707,22 +3722,48 @@ func (ec *executionContext) _Enrollment(ctx context.Context, sel ast.SelectionSe
 			out.Values[i] = ec._Enrollment_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "student":
+			field := field
 
-			out.Values[i] = ec._Enrollment_student(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Enrollment_student(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "course":
+			field := field
 
-			out.Values[i] = ec._Enrollment_course(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Enrollment_course(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "canceledAt":
 
 			out.Values[i] = ec._Enrollment_canceledAt(ctx, field, obj)
@@ -3732,7 +3773,7 @@ func (ec *executionContext) _Enrollment(ctx context.Context, sel ast.SelectionSe
 			out.Values[i] = ec._Enrollment_createdAt(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -4078,15 +4119,28 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_authUserId(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "enrollments":
+			field := field
 
-			out.Values[i] = ec._User_enrollments(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_enrollments(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
 			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -20,8 +20,32 @@ func InitializeCoursesRepository() *repository.CoursesRepository {
 	return coursesRepository
 }
 
+func InitializeEnrollemtsRepository() *repository.EnrollmentsRepository {
+	db := database.GetDatabase()
+	enrollmentsRepository := repository.NewEnrollmentsRepository(db)
+	return enrollmentsRepository
+}
+
+func InitializeStudentsRepository() *repository.StudentsRepository {
+	db := database.GetDatabase()
+	studentsRepository := repository.NewStudentsRepository(db)
+	return studentsRepository
+}
+
 func InitializeCoursesService() *service.CoursesService {
 	coursesRepository := InitializeCoursesRepository()
-	coursesService := service.NewCursesService(coursesRepository)
+	coursesService := service.NewCoursesService(coursesRepository)
 	return coursesService
+}
+
+func InitializeEnrollemtsService() *service.EnrollmentsService {
+	enrollmentsRepository := InitializeEnrollemtsRepository()
+	enrollmentsService := service.NewEnrollmentsService(enrollmentsRepository)
+	return enrollmentsService
+}
+
+func InitializeStudentsService() *service.StudentsService {
+	studentsRepository := InitializeStudentsRepository()
+	studentsService := service.NewStudentsService(studentsRepository)
+	return studentsService
 }

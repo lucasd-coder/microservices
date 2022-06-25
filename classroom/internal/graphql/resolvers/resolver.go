@@ -14,7 +14,9 @@ import (
 //go:generate go run github.com/99designs/gqlgen
 
 type Resolver struct {
-	CousersService *service.CoursesService
+	CousersService     *service.CoursesService
+	EnrollmentsService *service.EnrollmentsService
+	StudentService     *service.StudentsService
 }
 
 // Mutation returns generated.MutationResolver implementation.

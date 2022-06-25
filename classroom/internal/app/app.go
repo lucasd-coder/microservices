@@ -21,10 +21,12 @@ import (
 
 func graphqlHandler() gin.HandlerFunc {
 	courseService := InitializeCoursesService()
+	enrollmentsService := InitializeEnrollemtsService()
+	studentsService := InitializeStudentsService()
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(
 		generated.Config{
-			Resolvers:  &resolvers.Resolver{courseService},
+			Resolvers:  &resolvers.Resolver{courseService, enrollmentsService, studentsService},
 			Directives: generated.DirectiveRoot{},
 			Complexity: generated.ComplexityRoot{},
 		},
