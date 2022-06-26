@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,9 +15,9 @@ type Enrollment struct {
 	Course    Course `json:"course_id" binding:"required" gorm:"OnUpdate:CASCADE,OnDelete:CASCADE;foreignkey:CourseID"`
 	CourseID  string
 
-	CanceledAt time.Time `json:"canceledAt"`
-	CreatedAt  time.Time `json:"createdAt"`
-	UpdatedAt  time.Time `json:"updatedAt"`
+	CanceledAt sql.NullTime `json:"canceledAt"`
+	CreatedAt  time.Time    `json:"createdAt"`
+	UpdatedAt  time.Time    `json:"updatedAt"`
 }
 
 func (enrollment *Enrollment) BeforeCreate(tx *gorm.DB) error {

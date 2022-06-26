@@ -5,6 +5,7 @@ package generated
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"strconv"
@@ -16,6 +17,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/99designs/gqlgen/plugin/federation/fedruntime"
 	"github.com/lucasd-coder/classroom/internal/graphql/model"
+	"github.com/lucasd-coder/classroom/internal/graphql/schema/types"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -407,7 +409,8 @@ directive @goTag(
 
 # resolves to time.Time
 scalar Time
-`, BuiltIn: false},
+
+scalar NullTime`, BuiltIn: false},
 	{Name: "../../schema/schema.graphql", Input: `schema {
     query: Query
     mutation: Mutation
@@ -426,7 +429,7 @@ input CreateCourseInput @goModel(model: "github.com/lucasd-coder/classroom/inter
   id: ID!
   student: User!  @goField(forceResolver: true)
   course: Course!  @goField(forceResolver: true)
-  canceledAt: Time
+  canceledAt: NullTime
   createdAt: Time!
 }`, BuiltIn: false},
 	{Name: "../../schema/types/user.graphql", Input: `extend type User @key(fields: "authUserId") @goModel(model: "github.com/lucasd-coder/classroom/internal/graphql/model.User"){
@@ -921,9 +924,9 @@ func (ec *executionContext) _Enrollment_canceledAt(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(sql.NullTime)
 	fc.Result = res
-	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalONullTime2databaseᚋsqlᚐNullTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Enrollment_canceledAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -933,7 +936,7 @@ func (ec *executionContext) fieldContext_Enrollment_canceledAt(ctx context.Conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
+			return nil, errors.New("field of type NullTime does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5123,6 +5126,16 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) unmarshalONullTime2databaseᚋsqlᚐNullTime(ctx context.Context, v interface{}) (sql.NullTime, error) {
+	res, err := types.UnmarshalNullTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalONullTime2databaseᚋsqlᚐNullTime(ctx context.Context, sel ast.SelectionSet, v sql.NullTime) graphql.Marshaler {
+	res := types.MarshalNullTime(v)
+	return res
+}
+
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5184,16 +5197,6 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	res := graphql.MarshalString(*v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
-	res, err := graphql.UnmarshalTime(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
-	res := graphql.MarshalTime(v)
 	return res
 }
 

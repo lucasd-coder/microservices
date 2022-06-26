@@ -17,20 +17,20 @@ func NewStudentsRepository(connectionDb *gorm.DB) *StudentsRepository {
 
 func (db *StudentsRepository) ListAllStudents() []*model.User {
 	var student []*model.User
-	db.Connection.First(&student)
+	db.Connection.Find(&student)
 
 	return student
 }
 
 func (db *StudentsRepository) GetStudentByAuthUserId(authUserId string) *model.User {
 	var student model.User
-	db.Connection.First(&student, "auth_user_id = ?", authUserId)
+	db.Connection.Find(&student, "auth_user_id = ?", authUserId)
 	return &student
 }
 
 func (db *StudentsRepository) GetStudentById(id string) *model.User {
 	var student model.User
-	db.Connection.First(&student, "id = ?", id)
+	db.Connection.Find(&student, "id = ?", id)
 	return &student
 }
 

@@ -52,7 +52,6 @@ func (r *enrollmentResolver) Student(ctx context.Context, obj *model.Enrollment)
 	}
 
 	return student, nil
-
 }
 
 func (r *enrollmentResolver) Course(ctx context.Context, obj *model.Enrollment) (*model.Course, error) {

@@ -32,6 +32,10 @@ resolver:
 # if they match it will use them, otherwise it will generate them.
 autobind: []
 
+models:
+  NullTime:
+    model: github.com/lucasd-coder/classroom/internal/graphql/schema/types.NullTime
+
 # This section declares type mapping between the GraphQL and go type systems
 #
 # The first line in each type will be used as defaults for resolver arguments and
