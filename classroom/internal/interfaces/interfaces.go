@@ -29,7 +29,7 @@ type (
 		ListAllCourses() []*model.Course
 		GetCourseById(id string) (*model.Course, error)
 		GetCourseBySlug(slug string) (*model.Course, error)
-		CreateCourse(course model.CreateCourseInput) (*model.Course, error)
+		CreateCourse(title string) (*model.Course, error)
 	}
 
 	EnrollmentsService interface {

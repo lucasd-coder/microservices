@@ -48,8 +48,8 @@ func (service *CoursesService) GetCourseBySlug(slug string) (*model.Course, erro
 	return course, nil
 }
 
-func (service *CoursesService) CreateCourse(data *model.CreateCourseInput) (*model.Course, error) {
-	slug := slug.Make(data.Title)
+func (service *CoursesService) CreateCourse(title string) (*model.Course, error) {
+	slug := slug.Make(title)
 
 	aux := service.CoursesRepository.GetCourseBySlug(slug)
 
@@ -57,7 +57,7 @@ func (service *CoursesService) CreateCourse(data *model.CreateCourseInput) (*mod
 		return &model.Course{}, ErrCourseAlreadyExist
 	}
 
-	course := model.NewCourse(data.Title, slug)
+	course := model.NewCourse(title, slug)
 
 	newCourse, err := service.CoursesRepository.Create(*course)
 	if err != nil {

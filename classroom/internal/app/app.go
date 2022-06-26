@@ -9,10 +9,12 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/auth0/go-jwt-middleware/v2/validator"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/lucasd-coder/classroom/internal/graphql/graph/generated"
 	"github.com/lucasd-coder/classroom/internal/graphql/resolvers"
+	"github.com/lucasd-coder/classroom/internal/messaging"
 	"github.com/lucasd-coder/classroom/internal/middlewares"
 	"github.com/lucasd-coder/classroom/internal/pkg/database"
 	"github.com/lucasd-coder/classroom/internal/pkg/logger"
@@ -78,13 +80,29 @@ func Run(port string) {
 
 	defer database.CloseConn()
 
+	courseService := InitializeCoursesService()
+	enrollmentsService := InitializeEnrollemtsService()
+	studentsService := InitializeStudentsService()
+
+	handler := messaging.NewPurchasesProcessor(studentsService,
+		courseService, enrollmentsService)
+
+	configMap := &kafka.ConfigMap{
+		"bootstrap.servers": "localhost:29092",
+		"group.id":          "classroom",
+	}
+
+	consumer := messaging.New(func(msg *kafka.Message) error {
+		err := handler.PurchaseCreated(msg)
+		return err
+	}, configMap)
+
 	srv := gin.Default()
 	srv.Use(gin.Recovery())
 	srv.Use(middlewares.GinContextToContextMiddleware())
 	srv.POST("/graphql", graphqlHandler())
 	srv.GET("/playground", playgroundHandler())
-	err := srv.Run(":" + port)
-	if err != nil {
-		panic(err)
-	}
+	go srv.Run(":" + port)
+
+	consumer.Start()
 }

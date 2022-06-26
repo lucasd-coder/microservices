@@ -29,7 +29,7 @@ func (r *mutationResolver) CreateCourse(ctx context.Context, data model.CreateCo
 		return &model.Course{}, gqlerror.Errorf(err.Error())
 	}
 
-	course, err := r.CousersService.CreateCourse(&data)
+	course, err := r.CousersService.CreateCourse(data.Title)
 	if err != nil {
 		logger.Log.Error(err)
 		return &model.Course{}, gqlerror.Errorf(err.Error())
