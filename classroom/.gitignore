@@ -18,6 +18,8 @@ lerna-debug.log*
 
 .vscode
 
+.scannerwork
+
 # Tests
 /coverage
 /.nyc_output
